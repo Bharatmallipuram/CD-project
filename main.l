@@ -43,10 +43,12 @@ void printSymbolTable() {
 
 %%
 
+"/*"([^*]|[\r\n]|"*"[^/])*"*/"     { printf("Removed multi-line comment: %s\n", yytext); }
+"//".*                              { printf("Removed single-line comment: %s\n", yytext); }
+
 int|float|char|void        {
                                 strcpy(currentType, yytext);   // Set the current type (e.g., int, float)
                             }
-
 
 [a-zA-Z_][a-zA-Z0-9_]*     {
                                 if (strcmp(currentType, "") != 0) {  // If a valid data type was found
@@ -61,12 +63,10 @@ int|float|char|void        {
 
 [ \t\n]+                   ;
 
-
 .                          ;
 
 %%
 
-/* Main function to run the lexical analyzer */
 int main() {
     yylex();  // This runs the Lex analyzer
 
