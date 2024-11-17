@@ -1,6 +1,6 @@
 # Comment Remover and Symbol Table Generator
 
-This project is a simple compiler design utility using **Lex** to remove comments and generate a symbol table for identifiers in C source code files. It is designed to recognize data types, variables, and functions, storing each identified symbol in a symbol table with details about its type and scope.
+This project is a compiler design utility using **Lex** to process C source code files. It performs two key tasks: removing comments and generating a symbol table for the identifiers found in the code. The symbol table includes details about each identifier's type and scope.
 
 ## Table of Contents
 
@@ -16,31 +16,40 @@ This project is a simple compiler design utility using **Lex** to remove comment
 
 ## Project Description
 
-This project performs two main tasks:
+This project combines two functionalities:
 
-1. **Comment Removal**: Identifies and removes both single-line (`//`) and multi-line (`/* ... */`) comments from the input code.
-2. **Symbol Table Generation**: Builds a symbol table that lists identifiers (variables, functions) along with their type and scope (global or local).
+1. **Comment Removal**: 
+   - Identifies and removes both single-line (`//`) and multi-line (`/* ... */`) comments from the input source code.
+   - Logs each removed comment to provide feedback.
+
+2. **Symbol Table Generation**: 
+   - Recognizes identifiers such as variables and function names.
+   - Identifies their data type (e.g., `int`, `float`, `char`, `void`) and scope (`global` or `local`).
+   - Outputs a neatly formatted symbol table.
+
+The processed code, free of comments, is displayed alongside the generated symbol table and a list of removed comments.
 
 ## Features
 
-- Recognizes data types (`int`, `float`, `char`, `void`) and adds symbols to the table.
-- Identifies global and local scope based on `{` and `}` brackets.
-- Discards comments and displays a message for each removed comment.
-- Generates a neatly formatted symbol table with `Name`, `Type`, and `Scope` columns.
+- Processes single-line and multi-line comments with logging for each removed comment.
+- Supports recognition of common C data types (`int`, `float`, `char`, `void`).
+- Differentiates between global and local scopes based on `{` and `}` brackets.
+- Outputs:
+  - **Processed Code**: The code with comments removed.
+  - **Removed Comments**: A list of all removed comments.
+  - **Symbol Table**: Details of all recognized identifiers.
 
 ## Prerequisites
 
-- **Lex**: Install Lex to generate lexical analyzers.
-- **GCC**: Install GCC to compile the generated C code.
+- **Lex**: A tool to generate lexical analyzers.
+- **GCC**: For compiling the generated C file.
 
 ## Setup
 
-1. **Install Lex and GCC** if not already installed.
-
+1. **Install Lex and GCC** (if not already installed):
    ```bash
    sudo apt-get install flex       # For Ubuntu/Debian
    sudo apt-get install gcc
-   ```
 
 2. **Download or clone this repository.**
 3. **Navigate to the project folder**
@@ -75,6 +84,41 @@ multi-line comment _/
 void function(int a) {
 int z;
 }
+
+## Expected Output
+
+**Terminal Output**
+Processed Code (with comments removed):
+
+int x;
+float y;
+void function(int a) {
+    int z;
+}
+
+
+Removed Comments:
+// Single-line comment
+/* This is a 
+multi-line comment */
+// Another single-line comment
+
+
+Symbol Table:
+Name    Type    Scope
+-------------------------
+x       int     global
+y       float   global
+function void   global
+a       int     local
+z       int     local
+
+## Project Structure
+
+├── symbol_table_with_comments.l  # Lex file containing the logic
+├── input.c                       # Example input file
+├── lex.yy.c                      # Generated file from Lex (after running `lex`)
+├── symbol_table_with_comments    # Compiled executable
 
 ## License
 
