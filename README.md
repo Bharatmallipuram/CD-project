@@ -115,10 +115,13 @@ z       int     local
 
 ## Project Structure
 
+project-folder/
 ├── symbol_table_with_comments.l  # Lex file containing the logic
 ├── input.c                       # Example input file
 ├── lex.yy.c                      # Generated file from Lex (after running `lex`)
 ├── symbol_table_with_comments    # Compiled executable
+└── README.md                     # Documentation for the project
+
 
 ## License
 
