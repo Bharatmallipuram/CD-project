@@ -3,10 +3,14 @@ int a;
 float b;
 /* Multi-line
    comment */
-   
-void func(int x) { //function defination
+void func(int s) { //function defi
     char c;
-    printf("This is example function %d!!",x);
+    int k = 0;
+    printf("This is example function %d!!",s);
+    if (k = 0){
+      int z = 1;
+    }
+    int x1 = 8;
 }
 
 void main(){

@@ -7,16 +7,19 @@ struct Symbol {
     char name[50];
     char type[10];
     char scope[10];
+    int lineNumber;
 } symbolTable[100];
 
-int symbolCount = 0;          // Counter for symbols
-char currentType[10];         // To store the type of current identifier
-char currentScope[10] = "global"; // Default scope is global
+int symbolCount = 0;
+char currentType[10];
+char currentScope[10] = "global";
+int insideFunction = 0; // Flag to track if parsing inside a function parameter list
+int count = 0;
 
-char removedComments[1000][256]; // Buffer for removed comments
-int commentCount = 0;            // Counter for removed comments
+char removedComments[1000][256];
+int commentCount = 0;
 
-void addSymbol(char *name, char *type, char *scope) {
+void addSymbol(char *name, char *type, char *scope, int lineNumber) {
     for (int i = 0; i < symbolCount; i++) {
         if (strcmp(symbolTable[i].name, name) == 0 && strcmp(symbolTable[i].scope, scope) == 0) {
             return; // Symbol already exists, do not add it again
@@ -25,15 +28,20 @@ void addSymbol(char *name, char *type, char *scope) {
     strcpy(symbolTable[symbolCount].name, name);
     strcpy(symbolTable[symbolCount].type, type);
     strcpy(symbolTable[symbolCount].scope, scope);
+    symbolTable[symbolCount].lineNumber = lineNumber;
     symbolCount++;
 }
 
 void printSymbolTable() {
     printf("\nSymbol Table:\n\n");
-    printf("Name\tType\tScope\n");
-    printf("-------------------------\n");
+    printf("Name\tType\tScope\tLine Number\n");
+    printf("----------------------------------\n");
     for (int i = 0; i < symbolCount; i++) {
-        printf("%s\t%s\t%s\n", symbolTable[i].name, symbolTable[i].type, symbolTable[i].scope);
+        printf("%s\t%s\t%s\t%d\n",
+               symbolTable[i].name,
+               symbolTable[i].type,
+               symbolTable[i].scope,
+               symbolTable[i].lineNumber);
     }
 }
 
@@ -50,33 +58,54 @@ void logComment(const char *comment) {
                                         logComment(yytext); 
                                     }
 
-"//".*                              { 
-                                        logComment(yytext); 
-                                    }
+"//".*                          { 
+    logComment(yytext); 
+}
 
 int|float|char|void        { 
-                                strcpy(currentType, yytext); 
-                                printf("%s ", yytext); 
-                            }
+    strcpy(currentType, yytext); 
+    printf("%s ", yytext); 
+}
 
 [a-zA-Z_][a-zA-Z0-9_]*     { 
-                                if (strcmp(currentType, "") != 0) {  
-                                    addSymbol(yytext, currentType, currentScope);
-                                    currentType[0] = '\0'; 
-                                }
-                                printf("%s ", yytext); 
-                            }
+    if (count == 0) strcpy(currentScope, "global");
+    
+    if (!insideFunction && strcmp(currentType, "") != 0) {  
+        addSymbol(yytext, currentType, currentScope, yylineno);
+        currentType[0] = '\0'; 
+    }
+    printf("%s ", yytext); 
+}
+
+"("                        { 
+    insideFunction = 1; // Entering a parameter list
+    printf("( "); 
+}
+
+")"                        { 
+    insideFunction = 0; // Exiting a parameter list
+    printf(") "); 
+}
 
 "{"                        { 
-                                strcpy(currentScope, "local"); 
-                                printf("{ "); 
-                            }
-"}"                        { 
-                                strcpy(currentScope, "global"); 
-                                printf("} "); 
-                            }
+    count++;
+    strcpy(currentScope, "local"); 
+    printf("{ "); 
+}
 
-[ \t\n]+                   { printf("%s", yytext); }
+"}"                        { 
+    if (count == 0){
+        strcpy(currentScope, "global");
+    }
+    count--;
+    printf("} ");   
+}
+
+\n { ++yylineno; 
+     printf("%s", yytext);
+    }  
+
+[ \t]+                   { printf("%s", yytext); }
 
 .                          { printf("%s", yytext); }
 
